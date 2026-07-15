@@ -1,7 +1,19 @@
-
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QApplication, QLineEdit, QHBoxLayout
 from instr import * 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTime, QTimer
+from PyQt5.QtGui import QFont
+from final_win import FinalWin
+
+
+class Datos():
+    def __init__(self, name, age, test_1, test_2, test_3):
+        self.name = name
+        self.age = int(age)
+        self.test_1 = int(test_1)
+        self.test_2 = int(test_2)
+        self.test_3 = int(test_3)
+
+
 
 class testWin(QWidget):
     def __init__(self):
@@ -19,6 +31,7 @@ class testWin(QWidget):
     def initUI(self):
         self.label_name = QLabel(txt_name)
         self.input_name = QLineEdit(txt_hintname)
+        self.input_name.setPlaceholderText(txt_hintname)
         self.label_age = QLabel(txt_age)
         self.input_age = QLineEdit(txt_hintage)
 
@@ -56,8 +69,10 @@ class testWin(QWidget):
         self.left_layout.addWidget(self.rest2_restult, alignment= Qt.AlignLeft)
         self.left_layout.addWidget(self.rest3_restult, alignment= Qt.AlignLeft)
 
+        self.label_time = QLabel(txt_timer)
+        self.label_time.setFont(QFont("Arian", 35, QFont.Bold))
 
-        self.label_time = QLabel("00:00:00")
+        self.label_time = QLabel(txt_timer)
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(self.label_time)
 
@@ -78,8 +93,62 @@ class testWin(QWidget):
 
 
     def connection(self):
-        pass
+        self.test1_button.clicked.connect(self.timer_test)
+        self.test2_button.clicked.connect(self.timer_sits)
+        self.test3_button.clicked.connect(self.timer_final)
+        self.button.clicked.connect(self.next_click)
 
     def next_click(self):
+        results = Datos(self.input_name.text(), self.input_age.text(), self.rest1_restult.text(), self.rest2_restult.text(), self.rest3_restult.text())
         self.hide()
-        # self.final_win = 
+        self.final = FinalWin(results)
+        
+        
+
+    def timer_test(self):
+        self.time = QTime(0,0,15)
+        self.label_time.setText(self.time.toString())
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.timer1event)
+        self.timer.start(1000)
+        #self.timer.stop()
+
+    def timer1event(self):
+        self.time = self.time.addSecs(-1)
+        self.label_time.setText(self.time.toString())
+        if self.time.toString() == "00:00:00":
+            self.timer.stop()
+
+    def timer_sits(self):
+        self.time = QTime(0,0,30)
+        self.label_time.setText(self.time.toString()[6:8])
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.timer2event)
+        self.timer.start(1500)
+
+    def timer2event(self):
+        self.time = self.time.addSecs(-1)
+        self.label_time.setText(self.time.toString()[6:8])
+        if self.time.toString() == "00:00:00":
+            self.timer.stop()
+
+
+    def timer_final(self):
+        self.time = QTime(0,1,0)
+        self.label_time.setText(self.time.toString())
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.timer3event)
+        self.timer.start(1000)
+
+    def timer3event(self):
+        self.time = self.time.addSecs(-1)
+        self.label_time.setText(self.time.toString())
+        if self.time.toString() == "00:00:59":
+            self.label_time.setStyleSheet("color: rgb(0,255,0)")
+        elif self.time.toString() == "00:00:44":
+            self.label_time.setStyleSheet("color: rgb(0,0,0)")
+        elif self.time.toString() == "00:00:15":
+            self.label_time.setStyleSheet("color: rgb(0,255,0)")
+        if self.time.toString() == "00:00:00":
+            self.timer.stop()
+            self.label_time.setStyleSheet("color: rgb(0,0,0)")
